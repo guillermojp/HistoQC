@@ -55,6 +55,12 @@ def getIntensityThresholdPercent(s, params):
     name = params.get("name", "classTask")
     logging.info(f"{s['filename']} - \tLightDarkModule.getIntensityThresholdPercent:\t {name}")
 
+    # Prepare parameter names due to issues #213 and #219
+    if "lower_var" in params and "lower_variance" not in params:
+        params["lower_variance"] = params.get("lower_variance", -float("inf"))
+    if "upper_var" in params and "upper_variance" not in params:
+        params["upper_variance"] = params.get("upper_variance", float("inf"))
+
     lower_thresh = float(params.get("lower_threshold", -float("inf")))
     upper_thresh = float(params.get("upper_threshold", float("inf")))
 
@@ -62,7 +68,7 @@ def getIntensityThresholdPercent(s, params):
     upper_var = float(params.get("upper_variance", float("inf")))
 
     img = s.getImgThumb(s["image_work_size"])
-    img_var = img.std(axis=2)
+    img_var = img.var(axis=2)
 
     map_var = np.bitwise_and(img_var > lower_var, img_var < upper_var)
 
